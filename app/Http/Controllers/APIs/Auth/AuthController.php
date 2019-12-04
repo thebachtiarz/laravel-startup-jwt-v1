@@ -27,9 +27,17 @@ class AuthController extends Controller
      */
     public function login()
     {
+        $validator = Validator::make(request()->all(), [
+            'email' => 'required|email|string|max:255',
+            'password' => 'required|string'
+        ]);
+        if ($validator->fails()) {
+            return response()->json(errorResponse($validator->errors()), 202);
+        }
+
         $credentials = request(['email', 'password']);
         if (!$token = Auth::attempt($credentials)) {
-            return response()->json(errorResponse('Unauthorized'), 401);
+            return response()->json(errorResponse('Account not found !'), 202);
         }
         return $this->respondWithToken($token);
     }
@@ -44,7 +52,6 @@ class AuthController extends Controller
         ], [
             'email.unique' => 'Account has been registered, if you forget your password, please click forgot password.'
         ]);
-
         if ($validator->fails()) {
             return response()->json(errorResponse($validator->errors()), 202);
         }
@@ -102,6 +109,7 @@ class AuthController extends Controller
     protected function respondWithToken($token)
     {
         return response()->json(successResponse('Authorization', [
+            'account_name' => Auth::user()->name,
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => Auth::factory()->getTTL() * 60

@@ -59,33 +59,26 @@
         </div>
     </div>
     <script src="{{ online_asset() }}/plugins/jquery/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios@0.19.0/dist/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/node-forge@0.7.0/dist/forge.min.js"></script>
+    @include('layouts.libraries._libraries', ['_lib' => ['_axios', '_forgejs']])
     <script src="{{ online_asset() }}/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="{{ online_asset() }}/dist/js/adminlte.min.js"></script>
+    <script src="/js/app/libraries/await-sleep.min.js"></script>
     <script>
         $(document).on('keyup', '#form-email', function(e) {
-            if (event.keyCode === 13) {
-                e.preventDefault(), $('#form-password').focus()
-            }
+            (event.keyCode === 13) ? (e.preventDefault(), $('#form-password').focus()) : ''
         });
 
         $(document).on('keyup', '#form-password', function(e) {
-            if (event.keyCode === 13) {
-                e.preventDefault(), $('#form-submit').click()
-            }
+            (event.keyCode === 13) ? (e.preventDefault(), $('#form-submit').click()) : ''
         });
 
         $(document).on('click', '#form-submit', function() {
             let email = $('#form-email').val();
             let password = $('#form-password').val();
             let remember = $('#form-remember').is(":checked");
-            let encs = forge.md.sha384.create(),
-                encn = forge.md.sha512.create();
-            encs.update(password), encn.update(encs.digest().toHex());
-            let encpass = encn.digest().toHex();
+            let encpass = encryptPassword(password);
             if (email && password) {
-                submitLogin(email, encpass, remember)
+                submitLogin(email, password, remember)
             }
             if (!email) {
                 $('#form-email').attr('placeholder', "Email can't be empty")
@@ -96,12 +89,32 @@
         });
 
         const submitLogin = (email, password, remember) => {
-            let login = {
+            axios.post(`/api/auth/login`, {
                 email,
                 password,
                 remember
-            };
-            console.table(login);
+            }).then(response => loginResponse(response.data)).catch(error => console.log(error))
         }
+
+        const loginResponse = async (data) => {
+            await sleep(1000);
+            if (data.status == 'success') {
+                credentialKeySave(data.response_data[0].access_token);
+                $('#view-login-msg').html(spanMessage('success', `Welcome ${data.response_data[0].account_name}`));
+                await sleep(1000);
+                $('#view-login-msg').html(spanMessage('success', `Please waitt... <i class="fas fa-spinner fa-pulse"></i>`));
+                redirectTo('/home');
+            } else {
+                let error = '';
+                data.message.email ? data.message.email.forEach(msg => error += spanMessage('info', msg)) : error += spanMessage('info', data.message);
+                $('#view-login-msg').html(error);
+            }
+        }
+
+        const spanMessage = (color, message) => `<p class="text-bold text-${color}">${message}</p>`;
+    </script>
+    <script>
+        const credentialKeySave = data => localStorage.setItem('_jwtApiToken', data);
+        const credentialKeyTake = () => localStorage.getItem('_jwtApiToken');
     </script>
     <!-- </body></html> -->
