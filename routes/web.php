@@ -15,6 +15,4 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/login', function () {
-    return response()->json(infoResponse(['you need login first.']), 200);
-})->name('apps.auth.login');
+Route::get('/signin', 'Web\AuthController@view_login')->name('apps.auth.login');
