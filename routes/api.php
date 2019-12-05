@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 
 Route::group(['prefix' => 'auth'], function () {
     Route::post('/register', 'APIs\Auth\AuthController@register');
+    Route::get('/register/verify', 'APIs\Auth\AuthController@register_verify');
 });
 
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function () {

@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\APIs\Auth;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use App\Mail\NewRegisterMail;
+use App\Models\AccessVerifyUser;
 use App\Models\User;
 
 class AuthController extends Controller
@@ -17,7 +20,7 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'register_verify']]);
     }
 
     /**
@@ -39,7 +42,10 @@ class AuthController extends Controller
         if (!$token = Auth::attempt($credentials)) {
             return response()->json(errorResponse('Account not found !'), 202);
         }
-        return $this->respondWithToken($token);
+        if (Auth::user()->email_verified_at) {
+            return $this->respondWithToken($token);
+        }
+        return response()->json(errorResponse('You must verify your account first, please check your email !'), 202);
     }
 
     public function register()
@@ -63,9 +69,36 @@ class AuthController extends Controller
             'code' => createNewUserCode()
         ]);
         if ($newUser) {
+            $newAccessToken = createAccessTokenUser();
+            AccessVerifyUser::create(['email' => request()->email, 'type' => 'newregister', 'access' => $newAccessToken]);
+            Mail::to(request()->email)->send((new NewRegisterMail)->markdown('emails.register.newregister', ['url' => url("/api/auth/register/verify?_access=$newAccessToken")]));
             return response()->json(successResponse('Successfully registered new user.'), 201);
         }
         return response()->json(errorResponse('Failed to register new user.'), 202);
+    }
+
+    public function register_verify() //verify new register by email
+    {
+        $validator = Validator::make(request()->all(), [
+            '_access' => 'required|string|min:32|max:32'
+        ], [
+            '_access.*' => "Oops... we couldn't verify this request."
+        ]);
+        if ($validator->fails()) {
+            // return response()->json(errorResponse($validator->errors()), 202); -> for REST API purpose.
+            return redirect("/signin?_colortype=danger&_message=Oops... we couldn't verify this request.");
+        }
+        $getAccess = AccessVerifyUser::where('access', request()->_access)->first();
+        if ($getAccess) {
+            // return $getAccess;
+            if ($getAccess['type'] == 'newregister') {
+                User::where('email', $getAccess['email'])->update(['email_verified_at' => Carbon_DBtimeNow()]);
+                AccessVerifyUser::where('access', $getAccess['access'])->delete();
+                return redirect("/signin?_colortype=success&_message=Your account has been successfully verified.");
+            }
+        }
+        // return response()->json(errorResponse("Sorry... we couldn't verify this request."), 202); -> for REST API purpose.
+        return redirect("/signin?_colortype=danger&_message=Sorry... we couldn't verify this request.");
     }
 
     /**

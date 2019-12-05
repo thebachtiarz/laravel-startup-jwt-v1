@@ -15,6 +15,15 @@ use Illuminate\Support\Carbon;
 
 /** */
 
+/**
+ * get date time now for database
+ *
+ * @return void
+ */
+function Carbon_DBtimeNow()
+{
+    return Carbon::now()->toDateTimeString();
+}
 
 /**
  * convert date time to interval time

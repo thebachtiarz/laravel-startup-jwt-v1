@@ -93,6 +93,11 @@ function createNewUserCode()
     return Str::random(64);
 }
 
+function createAccessTokenUser()
+{
+    return Str::random(32);
+}
+
 /**
  * create allowed url for user
  *
