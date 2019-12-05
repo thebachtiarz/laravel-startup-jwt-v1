@@ -39,7 +39,7 @@ function offline_asset()
  */
 function apps_icon()
 {
-    return offline_asset() . '/dist/img/AdminLTELogo.png';
+    return online_asset() . '/dist/img/AdminLTELogo.png';
 }
 
 /**

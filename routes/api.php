@@ -23,3 +23,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function () {
     Route::post('/refresh', 'APIs\Auth\AuthController@refresh');
     Route::post('/me', 'APIs\Auth\AuthController@me');
 });
+
+Route::group(['middleware' => ['api']], function () {
+    Route::get('/allowed-link', 'APIs\AllowedLinkController@getAllowedLink');
+});

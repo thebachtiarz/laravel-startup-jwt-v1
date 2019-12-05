@@ -17,3 +17,7 @@ Route::get('/', function () {
 
 Route::get('/signin', 'Web\AuthController@view_login')->name('apps.auth.login');
 Route::get('/home', 'Web\AuthController@view_home');
+
+Route::get('/master', function () {
+    return view('layouts.page_master');
+});
