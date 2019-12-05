@@ -34,9 +34,8 @@
     @include('layouts.libraries._libraries', ['_lib' => ['_axios', '_toastrjs']])
     <script src="{{ online_asset() }}/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="{{ online_asset() }}/dist/js/adminlte.min.js"></script>
+    <script src="/js/app/libraries/await-sleep.min.js"></script>
     <script async src="/js/app/master/master_home.min.js"></script>
     <script src="/js/app/auth/credentials-manager.min.js"></script>
-    <script>
-        //
-    </script>
+    <script src="/js/app/auth/credentials-checker.min.js"></script>
     <!-- </body></html> -->
