@@ -11,6 +11,11 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
+    public function view_register()
+    {
+        return view('auth.register');
+    }
+
     public function view_home()
     {
         return view('body.homepage');

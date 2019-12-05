@@ -48,7 +48,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|string|max:255|unique:users',
             'password' => 'required|string',
-            'conf_password' => 'required|string|same:password'
+            'repassword' => 'required|string|same:password'
         ], [
             'email.unique' => 'Account has been registered, if you forget your password, please click forgot password.'
         ]);
