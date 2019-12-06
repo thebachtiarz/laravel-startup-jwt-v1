@@ -38,7 +38,6 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json(errorResponse($validator->errors()), 202);
         }
-
         $credentials = request(['email', 'password']);
         if (!$token = Auth::attempt($credentials)) {
             return response()->json(errorResponse('Account not found !'), 202);
@@ -62,7 +61,6 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json(errorResponse($validator->errors()), 202);
         }
-        // die;
         $newUser = User::create([
             'name' => ucwords(request()->name),
             'email' => request()->email,
@@ -214,7 +212,7 @@ class AuthController extends Controller
     /**
      * Get the token array structure.
      *
-     * @param  string $token
+     * @param string $token
      *
      * @return \Illuminate\Http\JsonResponse
      */

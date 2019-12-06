@@ -22,6 +22,3 @@ Route::get('/register', 'Web\AuthController@view_register')->name('apps.auth.reg
 Route::get('/signin/lost', 'Web\AuthController@view_lostpassword')->name('apps.auth.lostpassword');
 Route::get('/signin/renew-password', 'Web\AuthController@view_renewpassword');
 Route::get('/home', 'Web\AuthController@view_home');
-Route::get('/email', function () {
-    return new LostPasswordMail();
-});
