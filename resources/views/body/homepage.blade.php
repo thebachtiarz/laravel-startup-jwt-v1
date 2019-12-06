@@ -1,6 +1,6 @@
 @extends('layouts.page_master')
 
-@section('title'){{ (isset($title)) ? $title : '' }}@endsection
+@section('title'){{ (isset($title)) ? $title : config('app_handler.app_name') . ' | Homepage' }}@endsection
 
 @section('header')
 @endsection
